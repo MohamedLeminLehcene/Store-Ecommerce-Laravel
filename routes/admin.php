@@ -56,13 +56,6 @@ Route::group(['namespace' => 'Admin','middle ware' => 'auth:admin'],function(){
  ########################### End Routing Languages ########################
 
 
- ####################### Begin Routing Vendors ##################
-
- Route::get('/','VendorsController@index')->name('admin.vendors');
-
- ####################### Begin Routing Vendors ##################
-
-
 
 
 
