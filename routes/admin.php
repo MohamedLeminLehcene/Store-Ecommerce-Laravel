@@ -55,11 +55,6 @@ Route::group(['namespace' => 'Admin','middle ware' => 'auth:admin'],function(){
 
  ########################### End Routing Languages ########################
 
-
-
-
-
-
 });
 
 

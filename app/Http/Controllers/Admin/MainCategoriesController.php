@@ -26,66 +26,63 @@ class MainCategoriesController extends Controller
     public function store(MainCategroyRequest $request)
     {
 
-        try
-        {
+        try {
+            //return $request;
 
-            $main_categoryies = collect($request -> category);
-            $filter = $main_categoryies -> filter(function($value,$key)
-            {
-                return $value['translation_lang'] == get_default_lang();
+            $main_categories = collect($request->category);
+
+            $filter = $main_categories->filter(function ($value, $key) {
+                return $value['abbr'] == get_default_lang();
             });
-             $default_category = array_values($filter -> all())[0];
 
-            //Insert Data By Default Lang
+            $default_category = array_values($filter->all()) [0];
 
-            $fileName = "";
 
-            if($request -> has('photo'))
-            {
-                $fileName = uploadImage('maincategories',$request -> photo);
+            $filePath = "";
+            if ($request->has('photo')) {
+
+                $filePath = uploadImage('maincategories', $request->photo);
             }
 
             DB::beginTransaction();
+
             $default_category_id = MainCategory::insertGetId([
-                'translation_lang' =>  $default_category['translation_lang'],
+                'translation_lang' => $default_category['abbr'],
                 'translation_of' => 0,
                 'name' => $default_category['name'],
                 'slug' => $default_category['name'],
-                'photo' => $fileName
+                'photo' => $filePath
             ]);
 
-            $categories = $main_categoryies -> filter(function($value,$key)
-            {
-                return $value['translation_lang'] != get_default_lang();
+            $categories = $main_categories->filter(function ($value, $key) {
+                return $value['abbr'] != get_default_lang();
             });
 
-            if(isset($categories) && ($categories -> count()) > 0)
-            {
-                $categorie_arr = [];
 
-                foreach($categories as $categorie)
-                {
-                   $categorie_arr[] = [
-                'translation_lang' =>  $categorie['translation_lang'],
-                'translation_of' => $default_category_id,
-                'name' => $categorie['name'],
-                'slug' => $categorie['name'],
-                'photo' => $fileName
-                   ];
+            if (isset($categories) && $categories->count()) {
+
+                $categories_arr = [];
+                foreach ($categories as $category) {
+                    $categories_arr[] = [
+                        'translation_lang' => $category['abbr'],
+                        'translation_of' => $default_category_id,
+                        'name' => $category['name'],
+                        'slug' => $category['name'],
+                        'photo' => $filePath
+                    ];
                 }
+
+                MainCategory::insert($categories_arr);
             }
 
-            MainCategory::insert($categorie_arr);
             DB::commit();
-            return redirect() -> route('admin.mainCategories') -> with(['success' => 'تم حفظ البيانات بالنجاح']);
-        }catch(\Exception $ex)
-        {
+
+            return redirect()->route('admin.mainCategories')->with(['success' => 'تم الحفظ بنجاح']);
+
+        } catch (\Exception $ex) {
             DB::rollback();
-            return redirect() -> route('admin.mainCategories') -> with(['error' => 'فشل حفظ البيانات الرجاء محاول لاحقا']);
+            return redirect()->route('admin.mainCategories')->with(['error' => 'حدث خطا ما برجاء المحاوله لاحقا']);
         }
-
-
-
 
     }
 
